@@ -36,7 +36,7 @@ Create a form element with fields that mirror those built in the Eloqua form
 ####5. Triple check styles across all pages to make sure style changes have not been made to other pages
 ####6. Publish the page
 1. On the top right of Webflow, press the “publish” button to publish it to the webflow staging server at `http://source-landing-pages.webflow.io/[page_name]`
-2. To publish to Architizer’s staging server, also check the “webflow.architizer.com’ URL, but only do this when you’ve made 1000% sure that no changes have accidentally made to the other pages. ALWAYS check the other pages and forms.
+2. To publish to Architizer’s staging server, also check the 'webflow.architizer.com’ URL, but only do this when you’ve made 1000% sure that no changes have accidentally made to the other pages. ALWAYS check the other pages and forms.
 
 ####7. Test your forms by filling them out and making sure that they are being funneled into Eloqua correctly
 ####8. Move page into appropriate URL folder
