@@ -1,0 +1,180 @@
+
+<! Use the code below in the Webflow projects settings to override CSS or add custom javascript. !>
+
+<! Header !>
+
+<style type="text/css" media="screen">
+.w-container {max-width: 1184px;}
+
+/* =========================== */
+/* Ticker Styles */ 
+/* =========================== */
+  
+.ticker {
+  width: span(11);
+  margin: auto;
+  color: rgba(0, 0, 0, 0.64);
+  font-size: 32px;
+}
+.ticker span {
+  padding: 6px 10px 2px;
+  text-align: center;
+}
+.ticker span.number {
+  background: url("//s3.amazonaws.com/contenthub.architizer.com/source_homepage/ticker-bg.png") center no-repeat;
+  background-size: contain;
+}
+.ticker h2 {
+  margin-top: 30px;
+}
+</style>
+
+<! Footer, mainly JS for forms !>
+
+<script type="text/javascript">
+
+  // =============================================
+  // Global Functions
+  // =============================================
+
+  var getUrlParameter = function getUrlParameter(sParam) {
+  var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+      sURLVariables = sPageURL.split('&'),
+      sParameterName,
+      i;
+
+  for (i = 0; i < sURLVariables.length; i++) {
+      sParameterName = sURLVariables[i].split('=');
+      if (sParameterName[0] === sParam) {
+          return sParameterName[1] === 0 ? true : sParameterName[1];
+      }
+    }
+  };
+
+  var $ = jQuery;
+
+  /* =========================== */
+  /* Ticker Javascript */
+  /* =========================== */
+
+  // Initial values
+  var initialValue = 1500000000;
+  var initialDate = Date.parse('August 16,2016');
+  var increment = 380;
+
+  // Format numbers in commas
+  function formatMoney(n, c, d, t) {
+    n = n;
+    c = isNaN(c = Math.abs(c)) ? 2 : c;
+    d = d === undefined ? '.' : d;
+    t = t === undefined ? ',' : t;
+
+    var s = n < 0 ? '-' : '';
+    var i = parseInt(n = Math.abs(+n || 0).toFixed(c)) + '';
+    var j = (j = i.length) > 3 ? j % 3 : 0;
+
+    return s + (j ? i.substr(0, j) + t : '') + i.substr(j).replace(/(\d{3})(?=\d)/g, '$1' + t) + (c ? d + Math.abs(n - i).toFixed(c).slice(2) : '');
+  }
+
+  // Convert a dollar value integer into an array
+  function dollarValueToArray ( number ) {
+    var array = [];
+    var formattedNumber = formatMoney(number, 0, '.', ',');
+    var digits = formattedNumber.split(''); digits.unshift('$');
+    for (var i=0; i < digits.length; i++) {
+      var thisValue = digits[i];
+      var thisClass = 'number';
+      if (isNaN(parseInt(digits[i]))) {
+        thisClass = 'empty';
+      }
+      array[i] = { 'class' : thisClass, 'value' : thisValue };
+    }
+    return array;
+  }
+
+  // Calculate the current construction value
+  function getSourceConstructionValue () {
+    var secondsSinceInitialDate = Math.floor((Date.now()-initialDate)/1000);
+    return Math.round((initialValue + secondsSinceInitialDate*increment)/5) * 5;
+  }
+
+  $(document).ready(function() {
+
+    // Every two seconds, fetch the new construction value and update the ticker.
+
+    setInterval(
+      function() {
+
+        var array = dollarValueToArray(getSourceConstructionValue());
+
+        var current_divs = $('.ticker').children('span');
+
+        array.forEach ( function ( object, index ) {
+
+          // Potential way to approach the case of more digits than divs (pseudocode):
+
+          // if array.length > current_divs.length {
+            // add a div
+          // }
+          if (array[index].value != current_divs.eq(index).html()) {
+            current_divs.eq(index).html(array[index].value);
+          }
+        })
+      }
+      , 2000
+    );
+  });
+  
+  // =============================================
+  // Signup Form POST
+  // =============================================
+  
+$('form#wf-form-Email-Form .btn').click(function() {
+  validateNewsletterForm();
+});
+
+function validateNewsletterForm() {
+  // Validation Regex for Email address
+  var emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+  // Elements
+  var firstName = (document.getElementById('FirstName-3').value);
+  var lastName = (document.getElementById('LastName-3').value);
+  var company = (document.getElementById('Company').value);
+  var emailAddress = (document.getElementById('email').value);
+  var phone = (document.getElementById('phone').value);
+  var errorMessage;
+  // Test validity of email address
+  var emailValid = emailRegex.test(emailAddress);
+  if ( !emailValid || !firstName || !lastName || !company || !emailAddress || !phone ) {
+    // Show Form Error block
+    $('.w-form-fail').show();
+    return false;
+  }
+  // Hide form errors on valid form
+  $('.w-form-fail').hide();
+
+  // Show Loading State
+  $('#wf-form-Email-Form').fadeOut("fast");
+
+
+  // Submit to Marketo by Ajax POST
+  $.ajax({
+    type: 'POST',
+    url: $('#wf-form-Email-Form').attr('action'),
+    data: $('#wf-form-Email-Form').serialize(),
+    success: showSuccessMessage
+  });
+
+  // Show Success Message after signing up
+  function showSuccessMessage() {
+    $('.w-form-done').fadeIn("fast");
+  }
+}
+
+  // =============================================
+  // Remove Webflow Badge
+  // =============================================
+
+$('.w-webflow-badge').remove();
+
+</script>
